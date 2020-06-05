@@ -79,7 +79,7 @@ workflow annotate_variants {
     cols = parser_cols
   }
 
-  
+
 
   #Outputs (1) original VCF with updated annotation columns and (2) raw VEP output
   output {
@@ -104,6 +104,7 @@ task txt_to_vcf {
   File config
 
   command <<<
+    conda install -c anaconda yaml # install necessary packages
 
     python ${script} -i ${variants} -c ${config} -o ${outfname}
 
@@ -191,6 +192,8 @@ task add_vep_cols {
 
 
   command <<<
+    conda install -c anaconda yaml # install necessary packages
+
     python ${script} -i ${original_variants} -v ${vep_vcf} -c ${cols} -y ${config} -o "${outprefix}.VEP.txt"
   >>>
 
