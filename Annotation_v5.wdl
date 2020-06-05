@@ -106,6 +106,8 @@ task txt_to_vcf {
   command <<<
     conda install -c anaconda yaml # install necessary packages
 
+    source ~/.bash_profile
+
     python ${script} -i ${variants} -c ${config} -o ${outfname}
 
   >>>
@@ -193,6 +195,8 @@ task add_vep_cols {
 
   command <<<
     conda install -c anaconda yaml # install necessary packages
+
+    source ~/.bash_profile
 
     python ${script} -i ${original_variants} -v ${vep_vcf} -c ${cols} -y ${config} -o "${outprefix}.VEP.txt"
   >>>
