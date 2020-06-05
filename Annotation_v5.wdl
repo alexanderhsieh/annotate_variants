@@ -79,7 +79,7 @@ workflow annotate_variants {
     cols = parser_cols
   }
 
-
+  
 
   #Outputs (1) original VCF with updated annotation columns and (2) raw VEP output
   output {
@@ -110,7 +110,7 @@ task txt_to_vcf {
   >>>
 
   runtime {
-    docker: "gatksv/sv-base-mini:cbb1fc"
+    docker: "mwalker174/sv-pipeline:mw-00c-stitch-65060a1"
   }
 
   output {
@@ -195,7 +195,7 @@ task add_vep_cols {
   >>>
 
   runtime {
-    docker: "gatksv/sv-base-mini:cbb1fc"
+    docker: "mwalker174/sv-pipeline:mw-00c-stitch-65060a1"
   }
 
   output {
