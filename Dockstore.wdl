@@ -165,7 +165,7 @@ task run_vep {
   >>>
 
   runtime {
-    docker: "ubuntu:latest"
+    docker: "mwalker174/sv-pipeline:mw-00c-stitch-65060a1"
   }
 
   output {
