@@ -14,7 +14,6 @@ Options:
                     	output tab-separated variants file with additional columns
 '''
 import sys
-import yaml
 from optparse import OptionParser
 import subprocess
 import os
@@ -25,12 +24,11 @@ parser = OptionParser()
 parser.add_option('-i', '--input', dest='input_file',help='input tab-separated variants file')
 parser.add_option('-v', '--vep', dest='vep_file',help='VEP-annotated VCF')
 parser.add_option('-c', '--col', dest='cols', help='comma-separated list of columns to parse and append')
-parser.add_option('-y', '--yml', dest='yml_file',help='config YML file')
 parser.add_option('-o', '--output', dest='output_file',help='output tab-separated variants file')
 (options, args) = parser.parse_args()
 
 ## check all arguments present
-if (options.input_file == None or options.vep_file == None or options.cols == None or options.yml_file == None or options.output_file == None):
+if (options.input_file == None or options.vep_file == None or options.cols == None or options.output_file == None):
 	print('\n' + '## ERROR: missing arguments' + '\n')
 	parser.print_help()
 	print('\n')
@@ -40,14 +38,16 @@ if (options.input_file == None or options.vep_file == None or options.cols == No
 input_file = options.input_file
 vep_file = options.vep_file
 cols = options.cols
-yml = options.yml_file
 output_file = options.output_file
 
-
-
-## read config file for parsing header: id, chr, pos, ref, alt, etc
-with open(yml, 'r') as ymlf:
-	cfg = yaml.load(ymlf, Loader=yaml.FullLoader)
+## dictionary of common header line names (to avoid needing yaml config file)
+cfg_head = {
+  'id': ['id', 'iid', 'individual', 'indv', 'sample', 'subject', 'individual_id', 'blinded id'],
+  'chr': ['chr', 'chromosome', 'chrom', '#chrom'],
+  'pos': ['pos', 'position', 'location', 'start'],
+  'ref': ['ref', 'reference', 'ref_allele', 'ref.allele'],
+  'alt': ['alt', 'alternate', 'alternative', 'alt_allele', 'alt.allele']
+}
 
 ## parse VEP file and store as dict
 
@@ -84,7 +84,8 @@ with open(vep_file, 'r') as vf:
 outcols = cols.split(',')
 
 ## read header line to get first column value of header
-head = subprocess.Popen("head -n 1 %s"%(input_file), shell=True, stdout=subprocess.PIPE).stdout.read()
+#head = subprocess.Popen("head -n 1 %s"%(input_file), shell=True, stdout=subprocess.PIPE).stdout.read()
+head = subprocess.run("head -n 1 %s"%(input_file), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf8').stdout
 head_token = head.split('\t')[0]
 
 ## added 03/26/2020; handles alternative input file format (VCF instead of txt)
@@ -102,40 +103,18 @@ with open(input_file, 'r') as f1:
 			#print '\t'.join(tmp)
 			outf.write('\t'.join(tmp) + '\n')
 		else:
-			if tmp[0] == head_token or tmp[0].lower() in cfg['head']['id']:
-				idx = {col.lower():index for index, col in enumerate(tmp)} # original header dict
-				idxmap = {} # re-mapped header dict
-				## re-map key fields (id, chr, pos, ref, alt)
-				## print error and exit if there is a problem with column header parsing
-				try:
-					idxmap['id'] = idx[list(set(idx.keys()).intersection(cfg['head']['id']))[0]]
-					idxmap['chr'] = idx[list(set(idx.keys()).intersection(cfg['head']['chr']))[0]]
-					idxmap['pos'] = idx[list(set(idx.keys()).intersection(cfg['head']['pos']))[0]]
-					idxmap['ref'] = idx[list(set(idx.keys()).intersection(cfg['head']['ref']))[0]]
-					idxmap['alt'] = idx[list(set(idx.keys()).intersection(cfg['head']['alt']))[0]]
-				except:
-					print('\n' + '## ERROR: problem with header column mapping')
-					print('##        check that all relevant columns are mapped in config.yml' + '\n')
-					sys.exit()
+			if tmp[0] == head_token or tmp[0].lower() in cfg_head['id']:
+				idx = {col:index for index, col in enumerate(tmp)} # original header dict
 
-				## print header of output file
-				#print '\t'.join(tmp) + '\t' + '\t'.join(outcols)
 				outf.write('\t'.join(tmp) + '\t' + '\t'.join(outcols) + '\n')
 			
 			else:
 				
-				#id = tmp[idx['ID']]
-				#chr, pos, ref, alt = tmp[idx['#CHROM']], tmp[idx['POS']], tmp[idx['REF']], tmp[idx['ALT']]
-
-				#id = tmp[idx[head_token]]
-				#chr, pos, ref, alt = tmp[idx['CHROM']], tmp[idx['POS']], tmp[idx['REF']], tmp[idx['ALT']]
-				#chr, pos, ref, alt = tmp[idx['chrom']], tmp[idx['pos']], tmp[idx['ref']], tmp[idx['alt']]
-				#chr, pos, ref, alt = tmp[idx['chr']], tmp[idx['pos']], tmp[idx['ref']], tmp[idx['alt']]
-				id = tmp[idxmap['id']]
-				chr = tmp[idxmap['chr']]
-				pos = tmp[idxmap['pos']]
-				ref = tmp[idxmap['ref']]
-				alt = tmp[idxmap['alt']]
+				id = tmp[idx['id']]
+				chr = tmp[idx['chr']]
+				pos = tmp[idx['pos']]
+				ref = tmp[idx['ref']]
+				alt = tmp[idx['alt']]
 
 				key = ':'.join([id, chr, pos])
 

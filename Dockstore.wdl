@@ -26,7 +26,6 @@ workflow annotate_variants {
   File convert_script
 
   File parser_script
-  File parser_config
   String parser_cols  
 
   String final_prefix = basename(variants, ".raw.txt")
@@ -38,7 +37,6 @@ workflow annotate_variants {
     cache_dir: "path to VEP cache download location"
     cache_version: "cache version being used, important if cache version doesn't match latest release"
     parser_script: "path to script used to parse and append VEP columns to original input file"
-    parser_config: "path to config file for parser_script"
     parser_cols: "comma-separated string listing VEP columns to parse; default: SYMBOL,Gene,BIOTYPE,Consequence,Existing_variation,MAX_AF,MAX_AF_POPS"
   }
 
@@ -54,8 +52,7 @@ workflow annotate_variants {
   call txt_to_vcf {
     input:
     variants = variants,
-    script = convert_script,
-    config = parser_config
+    script = convert_script
   }
   
   # Step 1: generate VEP annotations
@@ -75,7 +72,6 @@ workflow annotate_variants {
     original_variants = variants,
     vep_vcf = run_vep.vep_out,
     script = parser_script,
-    config = parser_config, 
     cols = parser_cols
   }
 
@@ -101,14 +97,11 @@ task txt_to_vcf {
   String outfname = "${outprefix}.vcf"
 
   File script
-  File config
 
   command <<<
-    conda install -c anaconda yaml # install necessary packages
 
-    source ~/.bash_profile
 
-    python ${script} -i ${variants} -c ${config} -o ${outfname}
+    python ${script} -i ${variants} -o ${outfname}
 
   >>>
 
@@ -171,10 +164,6 @@ task run_vep {
 
   >>>
 
-  runtime {
-    docker: "ensemblorg/ensembl-vep:latest"
-  }
-
   output {
     File vep_out = "${outfname}"
   }
@@ -187,18 +176,14 @@ task add_vep_cols {
   File original_variants
   File vep_vcf
   File script
-  File config 
   String cols
   
   String outprefix = basename(original_variants, '.raw.txt')
 
 
   command <<<
-    conda install -c anaconda yaml # install necessary packages
 
-    source ~/.bash_profile
-
-    python ${script} -i ${original_variants} -v ${vep_vcf} -c ${cols} -y ${config} -o "${outprefix}.VEP.txt"
+    python ${script} -i ${original_variants} -v ${vep_vcf} -c ${cols} -o "${outprefix}.VEP.txt"
   >>>
 
   runtime {
