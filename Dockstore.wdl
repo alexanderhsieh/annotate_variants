@@ -164,6 +164,10 @@ task run_vep {
 
   >>>
 
+  runtime {
+    docker: "ensemblorg/ensembl-vep:latest"
+  }
+
   output {
     File vep_out = "${outfname}"
   }
