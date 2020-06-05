@@ -109,6 +109,10 @@ task txt_to_vcf {
 
   >>>
 
+  runtime {
+    docker: "gatksv/sv-base-mini:cbb1fc"
+  }
+
   output {
     File out = "${outfname}"
   }
@@ -164,6 +168,10 @@ task run_vep {
 
   >>>
 
+  runtime {
+    docker: "ensemblorg/ensembl-vep:latest"
+  }
+
   output {
     File vep_out = "${outfname}"
   }
@@ -185,6 +193,10 @@ task add_vep_cols {
   command <<<
     python ${script} -i ${original_variants} -v ${vep_vcf} -c ${cols} -y ${config} -o "${outprefix}.VEP.txt"
   >>>
+
+  runtime {
+    docker: "gatksv/sv-base-mini:cbb1fc"
+  }
 
   output {
     File out = "${outprefix}.VEP.txt"
