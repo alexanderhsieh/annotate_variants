@@ -21,7 +21,7 @@ workflow annotate_variants {
   File variants
   String ref_ver
   String cache_dir
-  Int cache_version
+  String cache_version
 
   File convert_script
 
