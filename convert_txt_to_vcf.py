@@ -64,8 +64,8 @@ with open(input_file,'r') as f1:
 					idxmap['ref'] = idx[list(set(idx.keys()).intersection(cfg['head']['ref']))[0]]
 					idxmap['alt'] = idx[list(set(idx.keys()).intersection(cfg['head']['alt']))[0]]
 				except:
-					print '\n' + '## ERROR: problem with header column mapping' 
-					print '##        check that all relevant columns are mapped in config.yml' + '\n'
+					print('\n' + '## ERROR: problem with header column mapping')
+					print('##        check that all relevant columns are mapped in config.yml' + '\n')
 					sys.exit()
 				## write out VCF header
 				vcfout.write("##fileformat=VCFv4.1"+'\n')

@@ -31,9 +31,9 @@ parser.add_option('-o', '--output', dest='output_file',help='output tab-separate
 
 ## check all arguments present
 if (options.input_file == None or options.vep_file == None or options.cols == None or options.yml_file == None or options.output_file == None):
-	print '\n' + '## ERROR: missing arguments' + '\n'
+	print('\n' + '## ERROR: missing arguments' + '\n')
 	parser.print_help()
-	print '\n'
+	print('\n')
 	sys.exit()
 
 
@@ -114,8 +114,8 @@ with open(input_file, 'r') as f1:
 					idxmap['ref'] = idx[list(set(idx.keys()).intersection(cfg['head']['ref']))[0]]
 					idxmap['alt'] = idx[list(set(idx.keys()).intersection(cfg['head']['alt']))[0]]
 				except:
-					print '\n' + '## ERROR: problem with header column mapping' 
-					print '##        check that all relevant columns are mapped in config.yml' + '\n'
+					print('\n' + '## ERROR: problem with header column mapping')
+					print('##        check that all relevant columns are mapped in config.yml' + '\n')
 					sys.exit()
 
 				## print header of output file
