@@ -165,7 +165,7 @@ task run_vep {
   >>>
 
   runtime {
-    docker: "ensemblorg/ensembl-vep:latest"
+    docker: "ubuntu:latest"
   }
 
   output {
