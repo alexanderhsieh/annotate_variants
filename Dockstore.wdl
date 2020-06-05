@@ -139,7 +139,7 @@ task run_vep {
     ## note: may need to handle potential disagreements in VEP and cache versions via arguments
     ## used workaround described in https://gatkforums.broadinstitute.org/gatk/discussion/comment/50056#Comment_50056
     
-    docker run -v $input_path:/home/var/ -v $output_path:/home/out/ -v ${cache_dir}:/home/vep/.vep ensemblorg/ensembl-vep:latest ./vep \
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -v $input_path:/home/var/ -v $output_path:/home/out/ -v ${cache_dir}:/home/vep/.vep ensemblorg/ensembl-vep:latest ./vep \
       --cache \
       --dir_cache "/home/vep/.vep" \
       --cache_version ${cache_version} \
