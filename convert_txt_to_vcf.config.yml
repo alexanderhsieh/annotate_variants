@@ -1,0 +1,33 @@
+head:
+  id: ['id', 'iid', 'individual', 'indv', 'sample', 'subject', 'individual_id', 'blinded id']
+  chr: ['chr', 'chromosome', 'chrom', '#chrom']
+  pos: ['pos', 'position', 'location', 'start']
+  ref: ['ref', 'reference', 'ref_allele', 'ref.allele']
+  alt: ['alt', 'alternate', 'alternative', 'alt_allele', 'alt.allele']
+
+script:
+  tablepath: '/home/alh2194/bin/annovar/table_annovar.pl'
+  dbpath: '/share/data/resources/hg19/ANNOVAR_humandb/'
+  build: 'hg19'
+  dbs:
+  - refGene,g
+  - gnomad_exome,f
+  - gnomad_genome,f
+  - exac03,f
+  - cosmic70,f
+  - genomicSuperDups,r
+  - avsnp147,f
+  - mcap,f
+  - popscore,f
+  - dbNSFP4.0a,f
+  - spliceAI,f
+
+anno:
+  CADD_phred: 20
+  REVEL_score: 0.5
+  MCAP: 0.05
+  MPC_score: 2
+  MVP_rankscore: 0.75
+  MVP2_rankscore: 0.75
+  spliceAI_cutoff: 0.2
+  vclass: REVEL_score
