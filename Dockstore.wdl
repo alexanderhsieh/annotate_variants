@@ -144,7 +144,7 @@ task run_vep {
     /opt/vep/src/ensembl-vep/vep \
       --cache \
       --dir_cache "$CACHE_PATH" \
-      --cache_version ${cache_version}
+      --cache_version ${cache_version} \
       --offline \
       --format vcf \
       --vcf \
