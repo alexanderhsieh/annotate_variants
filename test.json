@@ -1,11 +1,10 @@
 {
-  "annotate_variants.convert_script": "/Users/ahsieh/Documents/talkowski_lab/projects/asd_mosaicism/wdl_EM_mosaic/src/convert_txt_to_vcf.py",
+  "annotate_variants.convert_script": "/Users/ahsieh/Documents/talkowski_lab/projects/annotate_variants/convert_txt_to_vcf.py",
   "annotate_variants.ref_ver": "GRCh38",
   "annotate_variants.cache_dir": "/Users/ahsieh/vep_data",
+  "annotate_variants.cache_dir": "/Users/ahsieh/vep_data.tar.gz",
   "annotate_variants.cache_version": "99",
   "annotate_variants.parser_cols": "SYMBOL,Gene,BIOTYPE,Consequence,Existing_variation,MAX_AF,MAX_AF_POPS",
   "annotate_variants.variants": "/Users/ahsieh/Documents/talkowski_lab/projects/asd_mosaicism/ssc/11003-p1.denovo.raw.txt",
-  "annotate_variants.parser_config": "/Users/ahsieh/Documents/talkowski_lab/projects/asd_mosaicism/wdl_EM_mosaic/src/convert_txt_to_vcf.config.yml",
-  "annotate_variants.parser_script": "/Users/ahsieh/Documents/talkowski_lab/projects/asd_mosaicism/wdl_EM_mosaic/src/parse_and_append_vep_cols.py"
+  "annotate_variants.parser_script": "/Users/ahsieh/Documents/talkowski_lab/projects/annotate_variants/parse_and_append_vep_cols.py"
 }
-
