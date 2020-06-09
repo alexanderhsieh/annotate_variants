@@ -120,7 +120,6 @@ task txt_to_vcf {
 ## NOTE: REQUIRES ~8GB memory (docker on mac allocates 2GB by default) - need to increase memory limit if running locally
 ## see: https://gatkforums.broadinstitute.org/wdl/discussion/11522/the-job-was-aborted-from-outside-cromwell-sporadic-failures-when-running-cromwell-locally
 task run_vep {
-  
   String ref # GRCh37 or GRCh38
   File cache_dir # path to location of cache files
   String cache_version
@@ -129,6 +128,8 @@ task run_vep {
   String cache_dirname = basename(cache_dir, '.tar.gz')
   String outprefix = basename(vcf, '.vcf')  
   String outfname = "VEP_raw.${outprefix}.vcf"
+
+  Int disk_size = 100 # test 100G for VEP?
   
   command <<<
 
@@ -169,6 +170,8 @@ task run_vep {
 
   runtime {
     docker: "ensemblorg/ensembl-vep:latest"
+    disks: "local-disk " + disk_size + " HDD"
+
   }
 
   output {
