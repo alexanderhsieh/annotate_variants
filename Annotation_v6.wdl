@@ -171,7 +171,7 @@ task run_vep {
   runtime {
     docker: "ensemblorg/ensembl-vep:latest"
     disks: "local-disk " + disk_size + " HDD"
-    bootDiskSizeGb: 200
+    bootDiskSizeGb: disk_size
   }
 
   output {
