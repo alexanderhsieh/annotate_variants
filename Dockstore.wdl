@@ -129,7 +129,7 @@ task run_vep {
   String outprefix = basename(vcf, '.vcf')  
   String outfname = "VEP_raw.${outprefix}.vcf"
 
-  Int disk_size = 100 # test 100G for VEP?
+  Int disk_size = 200 # test 100G for VEP?
   
   command <<<
 
