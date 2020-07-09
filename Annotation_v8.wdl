@@ -23,7 +23,7 @@ workflow annotate_variants {
 		File variants
 		String ref_ver
 		File cache_dir
-		String cache_version
+		#String cache_version
 
 		File convert_script
 
@@ -66,8 +66,8 @@ workflow annotate_variants {
 		input:
 			ref = ref_ver,
 			vcf = txt_to_vcf.out,
-			cache_dir = cache_dir,
-			cache_version = cache_version
+			cache_dir = cache_dir
+			#cache_version = cache_version
 	}
 
 	# Step 2: Parse and append VEP columns to original vcf file
