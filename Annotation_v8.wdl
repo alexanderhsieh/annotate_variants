@@ -173,7 +173,7 @@ task run_vep {
 	input {
 		String ref # GRCh37 or GRCh38
 		File cache_dir # path to location of cache files
-		String cache_version
+		String cache_version = "100"
 		File vcf
 		Int disk_size = 200 # test 100G for VEP?
 	}
