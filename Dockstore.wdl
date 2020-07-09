@@ -28,7 +28,7 @@ workflow annotate_variants {
 		File convert_script
 
 		File parser_script
-		#String parser_cols # "SYMBOL,Gene,BIOTYPE,Consequence,Existing_variation,MAX_AF,MAX_AF_POPS" 
+		#String parser_cols
 
 
 		File script_pv4 
