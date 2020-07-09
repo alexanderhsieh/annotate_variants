@@ -28,7 +28,7 @@ workflow annotate_variants {
 		File convert_script
 
 		File parser_script
-		String parser_cols # "SYMBOL,Gene,BIOTYPE,Consequence,Existing_variation,MAX_AF,MAX_AF_POPS" 
+		#String parser_cols # "SYMBOL,Gene,BIOTYPE,Consequence,Existing_variation,MAX_AF,MAX_AF_POPS" 
 
 
 		File script_pv4 
@@ -75,8 +75,8 @@ workflow annotate_variants {
 		input:
 			original_variants = variants,
 			vep_vcf = run_vep.vep_out,
-			script = parser_script,
-			cols = parser_cols
+			script = parser_script
+			#cols = parser_cols
 	}
 
 	#run PV4 filter
@@ -238,7 +238,7 @@ task add_vep_cols {
 		File original_variants
 		File vep_vcf
 		File script
-		String cols
+		String cols = "SYMBOL,Gene,BIOTYPE,Consequence,Existing_variation,MAX_AF,MAX_AF_POPS"
 	}
 
 	String outprefix = basename(original_variants, '.raw.txt')
