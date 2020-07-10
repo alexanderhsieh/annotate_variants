@@ -54,27 +54,48 @@ workflow annotate_variants {
 		#Int vc_dist 
 	}
 
-	# Step 0: convert txt to vcf
+	String final_prefix = basename(variants, ".txt")
+
+	# convert txt to vcf
 	call txt_to_vcf {
 		input:
 			variants = variants,
 			script = convert_script
 	}
 
-	# Step 1: generate VEP annotations
-	call run_vep {
+	# split vcf by chromosome
+	call split_vcf {
 		input:
-			ref = ref_ver,
-			vcf = txt_to_vcf.out,
-			cache_dir = cache_dir
-			#cache_version = cache_version
+			vcf = txt_to_vcf.out
 	}
 
-	# Step 2: Parse and append VEP columns to original vcf file
+	## scatter over chromosomes
+	scatter (idx in range(length(split_vcf.out))) {
+	
+		# generate VEP annotations
+		call run_vep {
+			input:
+				ref = ref_ver,
+				vcf = split_vcf.out[idx],
+				shard = "~{idx}",
+				cache_dir = cache_dir
+				#cache_version = cache_version
+		}
+
+	}
+	
+	# gather shards into final output vcf
+	call gather_vep {
+		input:
+			shards = run_vep.out,
+			prefix = final_prefix
+	}
+
+	# Parse and append VEP columns to original vcf file
 	call add_vep_cols {
 		input:
 			original_variants = variants,
-			vep_vcf = run_vep.vep_out,
+			vep_vcf = gather_vep.out,
 			script = parser_script
 			#cols = parser_cols
 	}
@@ -165,6 +186,43 @@ task txt_to_vcf {
 
 }
 
+## splits vcf by chromosome
+task split_vcf {
+	input {
+		File vcf # input vcf
+	}
+
+	String outprefix = basename(vcf, '.vcf')
+
+	command {
+		# pull header lines
+		grep "^#" ~{vcf} > header.txt
+
+		# sort input vcf and bgzip
+		sort -k1,1V -k2,2n ~{vcf} | bgzip -c > "~{vcf}.gz"
+
+		# tabix index input vcf
+		tabix -p vcf "~{vcf}.gz"
+
+		# split vcf by chromosome - use tabix -l to get all contig names from tabix index
+		for i in $(tabix -l ~{vcf}.gz)
+		do 
+			(cat header.txt; tabix ~{vcf}.gz $i) > "~{outprefix}.$i.vcf"
+		done
+
+	}
+
+	runtime {
+		docker: "gatksv/sv-base-mini:cbb1fc"
+		preemptible: 3
+		maxRetries: 3
+	}
+
+	output {
+		Array[File] out = glob("*.vcf") 
+	}
+
+}
 
 #Runs VEP in the same task to preserve environment
 ## NOTE: REQUIRES ~8GB memory (docker on mac allocates 2GB by default) - need to increase memory limit if running locally
@@ -175,13 +233,14 @@ task run_vep {
 		File cache_dir # path to location of cache files
 		String cache_version = "100"
 		File vcf
+		String shard
 		Int disk_size = 200 # test 100G for VEP?
 	}
 
 
 	String cache_dirname = basename(cache_dir, '.tar.gz')
 	String outprefix = basename(vcf, '.vcf')  
-	String outfname = "VEP_raw.~{outprefix}.vcf"
+	String outfname = "VEP_raw.~{outprefix}.~{shard}.vcf"
 
 	command {
 
@@ -227,9 +286,39 @@ task run_vep {
 	}
 
 	output {
-		File vep_out = "~{outfname}"
+		File out = "~{outfname}"
 	}
 
+}
+
+#Gathers shards of VEP-annotated vcf files into a single annotated vcf
+task gather_vep {
+	input {
+		Array[File] shards 
+		String prefix
+	}
+
+	command {
+
+		while read file; do
+			cat $file >> "tmp.cat.vcf"
+		done < ~{write_lines(shards)};
+
+		grep "^#" "tmp.cat.vcf" > "header.txt" 
+
+		(cat header.txt; grep -v "^#" "tmp.cat.vcf") > "~{prefix}.VEP.vcf"
+
+	}
+
+	runtime {
+		docker: "gatksv/sv-base-mini:cbb1fc"
+		preemptible: 3
+		maxRetries: 3
+	}
+	
+	output {
+		File out = "${prefix}.VEP.vcf"
+	}
 }
 
 #Parses VEP output and appends user-defined columns to the original VCF file
@@ -245,7 +334,7 @@ task add_vep_cols {
 
 
 	command {
-		python ~{script} -i ~{original_variants} -v ~{vep_vcf} -c ~{cols} -o "${outprefix}.VEP.txt"
+		python ~{script} -i ~{original_variants} -v ~{vep_vcf} -c ~{cols} -o "~{outprefix}.VEP.txt"
 	}
 
 	runtime {
@@ -259,6 +348,7 @@ task add_vep_cols {
 	}
 
 }
+
 
 #Adds PV4 columns to variants file for downstream filtering
 task flag_PV4 {
