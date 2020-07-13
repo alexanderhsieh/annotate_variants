@@ -151,7 +151,7 @@ task txt_to_vcf {
 	String outfname_gz = "~{outprefix}.vcf.gz"
 
 	command {
-		set -eou pipefail
+		set -euo pipefail
 
 		python ~{script} -i ~{variants} -o ~{outfname}
 
