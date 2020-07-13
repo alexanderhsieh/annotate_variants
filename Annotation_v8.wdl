@@ -66,6 +66,7 @@ workflow annotate_variants {
 		input:
 			ref = ref_ver,
 			vcf = txt_to_vcf.out,
+			vcf_idx = txt_to_vcf.idx,
 			cache_dir = cache_dir
 			#cache_version = cache_version
 	}
@@ -147,10 +148,14 @@ task txt_to_vcf {
 
 	String outprefix = basename(variants, '.raw.txt')  
 	String outfname = "~{outprefix}.vcf"
+	String outfname_gz = "~{outprefix}.vcf.gz"
 
 	command {
 		python ~{script} -i ~{variants} -o ~{outfname}
 
+		bgzip -c ~{outfname} > ~{outfname_gz}
+
+		tabix -p vcf ~{outfname_gz}
 	}
 
 	runtime {
@@ -160,7 +165,8 @@ task txt_to_vcf {
 	}
 
 	output {
-		File out = "~{outfname}"
+		File out = "~{outfname_gz}"
+		File idx = "~{outfname_gz}.tbi"
 	}
 
 }
@@ -175,12 +181,14 @@ task run_vep {
 		File cache_dir # path to location of cache files
 		String cache_version = "100"
 		File vcf
+		File vcf_idx
 		Int disk_size = 125 # test 100G for VEP?
 	}
 
 
 	String cache_dirname = basename(cache_dir, '.tar.gz')
-	String outprefix = basename(vcf, '.vcf')  
+	#String outprefix = basename(vcf, '.vcf')  
+	String outprefix = basename(vcf, '.vcf.gz')  
 	String outfname = "VEP_raw.~{outprefix}.vcf"
 
 	command {
@@ -217,7 +225,9 @@ task run_vep {
 		docker: "ensemblorg/ensembl-vep:latest"
 		disks: "local-disk " + disk_size + " HDD"
 		bootDiskSizeGb: disk_size
-		memory: "4G"
+		memory: "16G"
+		preemptible: 3
+		maxRetries: 3
 	}
 
 	output {
