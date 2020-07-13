@@ -175,7 +175,7 @@ task run_vep {
 		File cache_dir # path to location of cache files
 		String cache_version = "100"
 		File vcf
-		Int disk_size = 200 # test 100G for VEP?
+		Int disk_size = 125 # test 100G for VEP?
 	}
 
 
@@ -197,21 +197,15 @@ task run_vep {
 		--offline \
 		--format vcf \
 		--vcf \
-		--force_overwrite \
 		--assembly ~{ref} \
 		--input_file ~{vcf} \
 		--output_file ~{outfname} \
 		--no_stats \
 		--pick \
-		--gencode_basic \
-		--hgvs \
 		--symbol \
-		--transcript_version \
 		--canonical \
 		--biotype \
-		--numbers \
-		--max_af \
-		--af_gnomad
+		--max_af 
 
 
 		rm -rf ~{cache_dir}
@@ -223,7 +217,7 @@ task run_vep {
 		docker: "ensemblorg/ensembl-vep:latest"
 		disks: "local-disk " + disk_size + " HDD"
 		bootDiskSizeGb: disk_size
-		memory: "8G"
+		memory: "4G"
 	}
 
 	output {
