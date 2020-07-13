@@ -148,16 +148,15 @@ task txt_to_vcf {
 
 	String outprefix = basename(variants, '.raw.txt')  
 	String outfname = "~{outprefix}.vcf"
-	String outfname_gz = "~{outprefix}.vcf.gz"
 
 	command {
 		set -euo pipefail
 
 		python ~{script} -i ~{variants} -o ~{outfname}
 
-		sort -k1,1 -k2,2n ~{outfname} | bgzip -c > ~{outfname_gz}
+		sort -k1,1 -k2,2n ~{outfname} | bgzip -c > "~{outfname}.gz"
 
-		tabix -p vcf ~{outfname_gz}
+		tabix -p vcf "~{outfname}.gz"
 	}
 
 	runtime {
@@ -167,8 +166,8 @@ task txt_to_vcf {
 	}
 
 	output {
-		File out = "~{outfname_gz}"
-		File idx = "~{outfname_gz}.tbi"
+		File out = "~{outfname}.gz"
+		File idx = "~{outfname}.gz.tbi"
 	}
 
 }
