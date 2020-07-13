@@ -155,7 +155,7 @@ task txt_to_vcf {
 
 		python ~{script} -i ~{variants} -o ~{outfname}
 
-		sort -k1,1 -k2,2n ~{outfname} | bgzip ~{outfname_gz}
+		sort -k1,1 -k2,2n ~{outfname} | bgzip -c > ~{outfname_gz}
 
 		tabix -p vcf ~{outfname_gz}
 	}
