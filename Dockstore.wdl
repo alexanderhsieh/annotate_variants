@@ -151,9 +151,11 @@ task txt_to_vcf {
 	String outfname_gz = "~{outprefix}.vcf.gz"
 
 	command {
+		set -eou pipefail
+
 		python ~{script} -i ~{variants} -o ~{outfname}
 
-		bgzip -c ~{outfname} > ~{outfname_gz}
+		sort -k1,1 -k2,2n ~{outfname} | bgzip ~{outfname_gz}
 
 		tabix -p vcf ~{outfname_gz}
 	}
@@ -203,6 +205,7 @@ task run_vep {
 		--dir_cache "$CACHE_PATH" \
 		--cache_version ~{cache_version} \
 		--offline \
+		--fork 4 \
 		--format vcf \
 		--vcf \
 		--assembly ~{ref} \
