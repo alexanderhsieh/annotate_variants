@@ -357,9 +357,12 @@ task flag_RR {
 
 	command <<<
 
+		conda install -c bioconda bedtools
+
 		set -euo pipefail
 
-		bedtools intersect > "test_syntax.txt"
+		BEDPATH=`which bedtools`
+		echo $BEDPATH > 'bedpath.txt'
 
 		## NOTE: using alternate command brackets to accommodate awk - otherwise will get unrecognized token error
 		## format input as bedfile
@@ -381,7 +384,7 @@ task flag_RR {
 	}
 
 	output {
-		File test_syntax = "test_syntax.txt"
+		File bedpath = "bedpath.txt"
 		File tmpbed = "tmp.bed" # temporary BEDfile created from variants file
 		File isec_file = "bed.isec.out.txt" # BEDtools intersect output
 		File out = "~{outprefix}.RR.txt"
