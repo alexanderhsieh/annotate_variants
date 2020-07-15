@@ -357,7 +357,7 @@ task flag_RR {
 
 	command <<<
 
-		conda install -c bioconda bedtools
+		#conda install -c bioconda bedtools
 
 		set -euo pipefail
 
