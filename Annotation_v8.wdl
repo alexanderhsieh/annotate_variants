@@ -357,15 +357,17 @@ task flag_RR {
 
 	command <<<
 
+		set -euo pipefail
+		
 		## NOTE: using alternate command brackets to accommodate awk - otherwise will get unrecognized token error
 		## format input as bedfile
-		awk -F '\t' '{if($1!="id") print "chr"$2"\t"$3"\t"$3}' ~{infile} | sort -k1,1 -k2,2n > tmp.bed
+		awk -F '\t' '{if($1!="id") print "chr"$2"\t"$3"\t"$3}' ~{infile} | sort -k1,1 -k2,2n > "tmp.bed"
 
 		## run bedtools intersect
-		intersectBed -wa -wb -a tmp.bed -b ~{lcr} ~{map} ~{seg} -filenames > bed.isec.out.txt
+		bedtools intersect -wa -wb -a "tmp.bed" -b ~{lcr} ~{map} ~{seg} -filenames > "bed.isec.out.txt"
 
 		## parse bedtools intersect output and append relevant columns to input file
-		python ~{script_parse} ~{infile} bed.isec.out.txt > "~{outprefix}.RR.txt"
+		python ~{script_parse} ~{infile} "bed.isec.out.txt" > "~{outprefix}.RR.txt"
 
 	>>>
 
@@ -373,6 +375,7 @@ task flag_RR {
 		docker: "mwalker174/sv-pipeline:mw-00c-stitch-65060a1"
 		preemptible: 3
 		maxRetries: 3
+		memory: "8G"
 	}
 
 	output {
