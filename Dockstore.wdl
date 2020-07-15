@@ -351,13 +351,13 @@ task flag_RR {
 		File map
 		File seg
 		File lcr
+
+		Int disk_size = 100
 	}
 
 	String outprefix = basename(infile, '.txt')
 
 	command <<<
-
-		#conda install -c bioconda bedtools
 
 		set -euo pipefail
 
@@ -380,7 +380,10 @@ task flag_RR {
 		docker: "mwalker174/sv-pipeline:mw-00c-stitch-65060a1"
 		preemptible: 3
 		maxRetries: 3
-		memory: "8G"
+		memory: "16G"
+		disks: "local-disk " + disk_size + " HDD"
+		bootDiskSizeGb: disk_size
+
 	}
 
 	output {
