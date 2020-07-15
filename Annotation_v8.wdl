@@ -43,7 +43,7 @@ workflow annotate_variants {
 		#Float fdr_e_fp 
 		#Float fdr_seq_err 
 
-		File script_rr_bash 
+		#File script_rr_bash 
 		File script_rr_parse 
 
 		File rr_map 
@@ -111,7 +111,7 @@ workflow annotate_variants {
 	call flag_RR {
 		input:
 			infile = flag_FDR.out,
-			script_bash = script_rr_bash,
+			#script_bash = script_rr_bash,
 			script_parse = script_rr_parse,
 			map = rr_map,
 			seg = rr_seg,
@@ -346,7 +346,6 @@ task flag_FDR {
 task flag_RR {
 	input {
 		File infile
-		File script_bash
 		File script_parse
 
 		File map
@@ -356,13 +355,19 @@ task flag_RR {
 
 	String outprefix = basename(infile, '.txt')
 
-	command {
-		git clone https://github.com/arq5x/bedtools2.git
+	command <<<
 
-		BEDPATH=$(cd bedtools2/src; pwd)
+		## NOTE: using alternate command brackets to accommodate awk - otherwise will get unrecognized token error
+		## format input as bedfile
+		awk -F '\t' '{if($1!="id") print "chr"$2"\t"$3"\t"$3}' ~{infile} | sort -k1,1 -k2,2n > tmp.bed
 
-		sh ~{script_bash} -v ~{infile} -b "$BEDPATH" -m ~{map} -s ~{seg} -l ~{lcr} -p ~{script_parse}
-	}
+		## run bedtools intersect
+		intersectBed -wa -wb -a tmp.bed -b ~{lcr} ~{map} ~{seg} -filenames > bed.isec.out.txt
+
+		## parse bedtools intersect output and append relevant columns to input file
+		python ~{script_parse} ~{infile} bed.isec.out.txt > "~{outprefix}.RR.txt"
+
+	>>>
 
 	runtime {
 		docker: "mwalker174/sv-pipeline:mw-00c-stitch-65060a1"

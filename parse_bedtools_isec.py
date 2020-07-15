@@ -20,7 +20,9 @@ with open(sys.argv[2],'r') as bedf:
 
 		tmpkey = ':'.join([chr, pos])
 
+
 		fname = tmp[3]
+
 
 		# parse score columns where available
 		if 'map' in fname:
@@ -30,7 +32,7 @@ with open(sys.argv[2],'r') as bedf:
 			else:
 				if score > mapd[tmpkey]:
 					mapd[tmpkey] = score
-		elif 'segdup' in fname:
+		elif 'seg' in fname:
 			score = float(tmp[7])
 			if not tmpkey in segd:
 				segd[tmpkey] = score
