@@ -358,7 +358,9 @@ task flag_RR {
 	command <<<
 
 		set -euo pipefail
-		
+
+		bedtools intersect > "test_syntax.txt"
+
 		## NOTE: using alternate command brackets to accommodate awk - otherwise will get unrecognized token error
 		## format input as bedfile
 		awk -F '\t' '{if($1!="id") print "chr"$2"\t"$3"\t"$3}' ~{infile} | sort -k1,1 -k2,2n > "tmp.bed"
@@ -379,6 +381,7 @@ task flag_RR {
 	}
 
 	output {
+		File test_syntax = "test_syntax.txt"
 		File tmpbed = "tmp.bed" # temporary BEDfile created from variants file
 		File isec_file = "bed.isec.out.txt" # BEDtools intersect output
 		File out = "~{outprefix}.RR.txt"
